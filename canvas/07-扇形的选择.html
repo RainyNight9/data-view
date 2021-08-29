@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+
+    // 扇形的实例
+    class Sector {
+      constructor(r = 200, startAngle = 0, endAngle = Math.PI / 2, color = 'blue') {
+        this.r = r;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
+        this.color = color;
+        this.x = 0;
+        this.y = 0;
+      }
+      draw(ctx) {
+        const { x, y, r, startAngle, endAngle, color } = this;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.arc(x, y, r, startAngle, endAngle);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // 扇形
+    const sector = new Sector();
+    sector.x = canvas.width / 2;
+    sector.y = canvas.height / 2;
+    sector.draw(ctx);
+
+    // 监听鼠标事件
+    canvas.addEventListener('mousedown', (event) => {
+      const mousePos = getPos(event)
+      // console.log(mousePos)
+      const vector = {
+        x: mousePos.x - sector.x,
+        y: mousePos.y - sector.y,
+      }
+      const { x, y } = vector;
+      // 鼠标到圆心的距离 Math.sqrt返回一个数的平方根
+      const len = Math.sqrt(x * x + y * y);
+      console.log(len)
+      // 鼠标在扇形中的条件 长度满足
+      const bool1 = len < sector.r;
+      // 鼠标到圆心弧度的判断 指定一个坐标（x，y），坐标值（4,8），使用 atan2() 方法计算坐标与 X 轴之间的角度的弧度
+      const dir = Math.atan2(y, x);
+      const bool2 = dir > sector.startAngle && dir < sector.endAngle;
+
+      if (bool1 && bool2) {
+        sector.color = "red"
+      } else {
+        sector.color = "blue"
+      }
+      sector.draw(ctx)
+    });
+
+    function getPos(event) {
+      // 鼠标在窗口中的位置
+      const { clientX, clientY } = event;
+      // 获取canvas在窗口中的位置
+      const { left, top } = canvas.getBoundingClientRect()
+      // 鼠标在canvas中的位置=鼠标在窗口的位置-canvas在窗口的位置
+      const [x, y] = [clientX - left, clientY - top]
+      return { x, y }
+    }
+  </script>
+</body>
+
+</html>

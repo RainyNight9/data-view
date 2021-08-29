@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+    const text = '数据可视化'
+
+    // 填充矩形区域
+    const [x, y] = [canvas.width / 2, canvas.height / 2]
+    ctx.fillRect(x, y, 5, 5)
+
+    // 字体
+    ctx.font = 'bold 100px arial'
+
+    // 对齐
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+
+    // 填充文字
+    ctx.fillStyle = 'yellow'
+    ctx.fillText(text, x, y)
+
+    // 描边文字
+    ctx.strokeStyle = 'red'
+    ctx.lineWidth = 3
+    // ctx.strokeText(text,100,200)
+
+    // 获取文字的宽度
+    const measure = ctx.measureText(text)
+    console.log(measure)
+    const { width } = measure
+    ctx.strokeText(text, x, y)
+
+
+  </script>
+</body>
+
+</html>

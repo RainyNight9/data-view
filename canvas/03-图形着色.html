@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+    // 线宽
+    ctx.lineWidth = 10
+
+    // 矩形
+    ctx.beginPath()
+
+    ctx.rect(50, 50, 400, 200)
+    // 描边
+    ctx.strokeStyle = '#f0f'
+    ctx.stroke()
+
+
+    ctx.fillStyle = "rgba(255,0,0,0.5)"
+
+    ctx.beginPath()
+    ctx.rect(50, 290, 400, 200)
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.rect(150, 350, 400, 200)
+    ctx.fill()
+
+  </script>
+</body>
+
+</html>

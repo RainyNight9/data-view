@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // 画笔
+    const ctx = canvas.getContext('2d')
+
+    // 1、声明必备数据
+    // 标签及数据
+    const labelData = [
+      { value: 1048, name: '搜索引擎' },
+      { value: 735, name: '直接访问' },
+      { value: 580, name: '邮件营销' },
+      { value: 484, name: '联盟广告' },
+      { value: 300, name: '视频广告' }
+    ]
+    // 饼图的圆心位置
+    const pos = { x: canvas.width / 2, y: canvas.height / 2 }
+    // 饼图绘图区域半径
+    const radius = 200
+    // 色差 也可以默认颜色数组
+    const colorSpace = Math.floor(200 / labelData.length)
+
+    // 2、构建数据
+    // 2.1、计算基本数据
+    // 数据总和
+    const dataSum = countTotal(labelData, 'value')
+    // 扇形的起始角度和结束角度
+    const seriesAngle = [];
+    // 扇形的颜色
+    const seriesColor = []
+    // 扇形的半径
+    const seriesRadius = []
+    // 扇形的label
+    const seriesLabel = []
+    // 扇形的data
+    const seriesData = []
+
+    // 计算对象数组中某个属性的合计
+    function countTotal(arr, keyName) {
+      let $total = 0
+      // array.reduce(function(total, currentValue, currentIndex, arr), initialValue)
+      $total = arr.reduce((total, currentValue, currentIndex, arr) => {
+        return currentValue[keyName] ? (Number(total) + Number(currentValue[keyName])) : total
+      }, $total)
+      return $total
+    }
+
+    // 数据排序 遍历数据
+    labelData.forEach((item, index) => {
+      // 数据比例
+      const dataScalar = item.value / dataSum
+      // 扇形弧长
+      const angleLen = dataScalar * Math.PI * 2
+      // 扇形的起始角度 是上一个扇形的结束位置
+      const startAngle = index === 0 ? 0 : seriesAngle[index - 1][1]
+      // 扇形的结束角度
+      const endAngle = startAngle + angleLen
+      // 扇形的起始角度和结束角度
+      seriesAngle.push([startAngle, endAngle])
+
+      // 色域
+      const gamut = 50 + index * colorSpace
+      const color = `rgba(200,${gamut},${gamut},1)`
+      // 扇形颜色
+      seriesColor.push(color)
+      // 扇形半径 看起来有层次感 数据也是从大变小的 没有排序的话，可以半径一致
+      const itemRadius = radius - index * 10
+      seriesRadius.push(itemRadius)
+      // label
+      seriesLabel.push(item.name)
+      // data 数据也是从大变小的 
+      seriesData.push(item.value)
+    })
+
+    // 3、基于数据绘图
+    // 扇形的实例
+    class Sector {
+      constructor(r = 200, startAngle = 0, endAngle = Math.PI / 2, color = 'blue', text = "", data = 0) {
+        this.r = 0;
+        this.realRad = r;
+        this.expandRad = r + 20;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
+        this.color = color;
+
+        this.x = 0;
+        this.y = 0;
+
+        this.p1 = { x: 0, y: 0, d: 10 };
+        this.p2 = { x: 0, y: 0, d: 50 };
+        this.p3 = { x: 0, y: 0, d: 30 };
+        this.p4 = { x: 0, y: 0, d: 10 };
+
+        this.textAlign = 'left';
+        this.text = text
+        this.data = data
+
+        this.vr = 0; // 半径的运动速度
+        this.ar = 0.03; // 半径的移动的加速度0.03
+        this.bounce = 0.6; // 弹力
+        this.state = 0; // 半径运动状态 0 初始状态，1 鼠标划上的扩展状态 2 鼠标划出的收缩状态
+      }
+      draw(ctx) {
+        const { x, y, r, startAngle, endAngle, color, p1, p2, p3, p4, text, textAlign } = this;
+        ctx.save();
+        // 扇形
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.arc(x, y, r, startAngle, endAngle);
+        ctx.fillStyle = color;
+        ctx.fill();
+        // 引导线
+        ctx.beginPath();
+        // ctx.moveTo(x, y);
+        // ctx.lineTo(p1.x, p1.y);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.stroke();
+        // 文字
+        ctx.font = "18px arial"
+        ctx.textAlign = textAlign
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = '#000'
+        ctx.fillText(text, p4.x, p4.y)
+        ctx.restore();
+      }
+      // 更新引导线点位
+      updatePoints() {
+        const { realRad, startAngle, endAngle, x, y, p1, p2, p3, p4 } = this;
+        // 弧度
+        const dir = startAngle + (endAngle - startAngle) / 2
+        // 距离
+        const l1 = realRad + p1.d;
+        // Math.cos(dir)=p1.x/l1  余弦函数 角A的余弦是 邻边/斜边
+        p1.x = Math.cos(dir) * l1 + x;
+        // Math.sin(dir)=p1.y/l1  正弦函数 角A的正弦是 对边/斜边
+        p1.y = Math.sin(dir) * l1 + y;
+
+        const l2 = realRad + p2.d;
+        p2.x = Math.cos(dir) * l2 + x;
+        p2.y = Math.sin(dir) * l2 + y;
+
+        // p3点 具体是左偏移 还是 右偏移
+        let n = 1;
+        if (p1.x > x) {
+          this.textAlign = 'left'
+          n = 1
+        } else {
+          this.textAlign = 'right'
+          n = -1
+        }
+
+        p3.x = p2.x + p3.d * n
+        p3.y = p2.y
+
+        p4.x = p3.x + p4.d * n
+        p4.y = p3.y
+      }
+      // 基于state的变化更新半径
+      updateRad(diffTime) {
+        const { state, realRad, expandRad } = this
+        switch (state) {
+          case 0:
+            this.expand(diffTime, realRad); // 绘图半径变大到实际半径 expand(时间差, 目标半径)）
+            break;
+          case 1:
+            this.expand(diffTime, expandRad); // 绘图半径变大到扩展半径 expand(时间差, 目标半径)）
+            break;
+          case 2:
+            this.shrink(diffTime, realRad); // 绘图半径收缩到实际半径 shrink(时间差, 目标半径)）
+            break;
+        }
+      }
+      // 半径扩展动画
+      expand(diffTime, endR) {
+        const { ar, bounce } = this
+        // 速度 += 加速度
+        this.vr += ar
+        // 半径 += 速度*时间差
+        this.r += this.vr * diffTime
+        if (this.r > endR) {
+          this.r = endR
+          // 反弹 速度衰减 反方向去运动
+          this.vr *= -bounce
+        }
+      }
+      // 半径收缩动画
+      shrink(diffTime, endR) {
+        const { ar, bounce } = this
+        // 速度 += 加速度
+        this.vr -= ar
+        // 半径 += 速度*时间差
+        this.r += this.vr * diffTime
+        if (this.r < endR) {
+          this.r = endR
+          // 反弹 速度衰减 反方向去运动
+          this.vr *= -bounce
+        }
+      }
+    }
+
+    // 将扇形添加到系列集合中
+    const series = []
+    // 遍历弧度数组
+    seriesAngle.forEach((ele, index) => {
+      // 实例化扇形
+      const item = new Sector(seriesRadius[index], ele[0], ele[1], seriesColor[index])
+      item.x = pos.x
+      item.y = pos.y
+      item.text = seriesLabel[index]
+      item.data = seriesData[index]
+      item.updatePoints()
+      series.push(item)
+    })
+
+    // 鼠标交互
+    // 提示框
+    class Tip {
+      constructor(text = '数据可视化', fontSize = 20, visible = false) {
+        this.text = text
+        this.fontSize = fontSize
+        this.x = 0
+        this.y = 0
+        this.paddingW = 10
+        this.paddingH = 5
+        this.visible = visible
+
+        // 下一个点的位置
+        this.nx = 0
+        this.ny = 0
+        // 移动距离在总距离中的占比
+        this.rate = 0.1
+        // 移动状态
+        this.state = 0 // 0 不移动 1 移动
+      }
+      draw(ctx) {
+        const { text, x, y, fontSize, visible, paddingW, paddingH } = this
+        if (!visible) return
+        ctx.font = `${fontSize}px arail`
+        // 底色
+        const { width } = ctx.measureText(text);
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(x, y, width + paddingW * 2, fontSize + paddingH * 2);
+        // 文字
+        ctx.fillStyle = '#fff'
+        ctx.textBaseline = 'top'
+        ctx.fillText(text, x + paddingW, y + paddingH)
+      }
+      // 更新提示位置 基于鼠标位置的变动
+      updatePos() {
+        const { x, y, nx, ny, rate, state, visible } = this
+        if (!visible || !state) return
+        // 每次移动一小部分
+        this.x += (nx - x) * rate
+        this.y += (ny - y) * rate
+        // 需要停止更新的条件
+        const lx = nx - this.x
+        const ly = ny - this.y
+        const len = Math.sqrt(lx * lx + ly * ly)
+        console.log('提示框在更新位置！！！')
+        if (len < 1) {
+          this.state = 0
+        }
+      }
+    }
+
+    // 实例化提示框
+    const tip = new Tip()
+    tip.x = pos.x
+    tip.y = pos.y
+
+    // 监听鼠标移动事件
+    canvas.addEventListener('mousemove', (event) => {
+      const mousePos = getPos(event)
+      // 当前鼠标划上的扇形
+      let hoveredItem = null
+      // 遍历系列
+      for (let i = 0; i < series.length; i++) {
+        if (containPoint(series[i], mousePos)) {
+          series[i].state = 1
+          hoveredItem = series[i]
+        } else if (series[i].state === 1) {
+          series[i].state = 2
+        }
+      }
+      if (hoveredItem) {
+        tip.visible = true
+        tip.text = hoveredItem.data
+        tip.nx = mousePos.x + 20
+        tip.ny = mousePos.y + 20
+        // 提示框移动状态
+        tip.state = 1
+      } else {
+        tip.visible = false
+      }
+    });
+
+    // 计时器 time
+    let time = new Date();
+
+    render()
+
+    // 渲染方法
+    function render() {
+      // 获取时间差
+      const now = new Date();
+      const diffTime = now - time
+      time = now
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      series.forEach((item) => {
+        item.updateRad(diffTime)
+        // 绘制图表
+        item.draw(ctx)
+      })
+      // 更新提示位置
+      tip.updatePos()
+      // 绘制提示框
+      tip.draw(ctx)
+      // 连线渲染 请求动画帧
+      requestAnimationFrame(render)
+    }
+
+    // 判断点是不是在图形中
+    function containPoint(obj, mousePos) {
+      const { x, y, r, startAngle, endAngle } = obj
+      // 鼠标位置 - 图形位置
+      const [subX, subY] = [mousePos.x - x, mousePos.y - y]
+      // 鼠标到圆心的距离 Math.sqrt返回一个数的平方根
+      const len = Math.sqrt(subX * subX + subY * subY);
+      // 鼠标在扇形中的条件 长度满足
+      const bool1 = len < r;
+      // 鼠标到圆心弧度的判断 指定一个坐标（x，y），坐标值（4,8），使用 atan2() 方法计算坐标与 X 轴之间的角度的弧度
+      let dir = Math.atan2(subY, subX);
+      if (dir < 0) dir += Math.PI * 2
+      const bool2 = dir > startAngle && dir < endAngle;
+      return bool1 && bool2
+    }
+
+    // 获取鼠标的位置
+    function getPos(event) {
+      // 鼠标在窗口中的位置
+      const { clientX, clientY } = event;
+      // 获取canvas在窗口中的位置
+      const { left, top } = canvas.getBoundingClientRect()
+      // 鼠标在canvas中的位置=鼠标在窗口的位置-canvas在窗口的位置
+      const [x, y] = [clientX - left, clientY - top]
+      return { x, y }
+    }
+  </script>
+</body>
+
+</html>

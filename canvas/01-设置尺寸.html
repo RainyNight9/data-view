@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" width="300" height="500"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    // canvas.width = 200;
+    // canvas.height = 100;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+    // 填充矩形
+    ctx.fillRect(100, 100, 100, 100) // x,y,w,h
+    // 颜色
+    ctx.strokeStyle = 'red'
+    // 线宽
+    ctx.lineWidth = 5
+    // 描边矩形
+    ctx.strokeRect(100, 100, 100, 100)
+    // 清理矩形
+    ctx.clearRect(100, 100, 100, 100)
+    // 清理画布
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+  </script>
+</body>
+
+</html>

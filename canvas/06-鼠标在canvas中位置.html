@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+
+    // 监听鼠标事件
+    canvas.addEventListener('mousedown', getPos);
+    function getPos(event) {
+      // 鼠标在窗口中的位置
+      const { clientX, clientY } = event;
+      // 获取canvas在窗口中的位置
+      const { left, top } = canvas.getBoundingClientRect()
+      // 鼠标在canvas中的位置=鼠标在窗口的位置-canvas在窗口的位置
+      const [x, y] = [clientX - left, clientY - top]
+      console.log(x, y)
+    }
+  </script>
+</body>
+
+</html>

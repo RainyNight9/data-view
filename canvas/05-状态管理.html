@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+
+    // 状态管理
+    ctx.save()
+    ctx.fillStyle = "#abcdef"
+    ctx.fillRect(100, 100, 300, 200)
+    ctx.restore()
+
+    ctx.fillRect(100, 400, 300, 200)
+    console.log(ctx)
+  </script>
+</body>
+
+</html>

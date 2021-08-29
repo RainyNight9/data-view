@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+
+    // 已知A、B 两个点，求两点的中心点
+    const A = { x: 50, y: 100 }
+    const B = { x: 300, y: 500 }
+    // 中心点
+    const C = { x: 0, y: 0 }
+    // 比例
+    const n = 0.5
+
+    // 直线
+    ctx.beginPath()
+    ctx.moveTo(A.x, A.y)
+    ctx.lineTo(B.x, B.y)
+    ctx.stroke()
+
+    // 点A
+    ctx.beginPath()
+    // ctx.arc(x, y, r, startAngle, endAngle);
+    ctx.arc(A.x, A.y, 5, 0, Math.PI * 2)
+    ctx.fill();
+
+    // 点B
+    ctx.beginPath()
+    // ctx.arc(x, y, r, startAngle, endAngle);
+    ctx.arc(B.x, B.y, 5, 0, Math.PI * 2)
+    ctx.fill();
+
+    // 二分法
+    C.x = A.x + (B.x - A.x) * n
+    C.y = A.y + (B.y - A.y) * n
+
+    // 点C
+    ctx.beginPath()
+    // ctx.arc(x, y, r, startAngle, endAngle);
+    ctx.arc(C.x, C.y, 5, 0, Math.PI * 2)
+    ctx.fill();
+
+  </script>
+</body>
+
+</html>
