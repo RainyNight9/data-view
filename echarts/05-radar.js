@@ -9,7 +9,7 @@ const option = {
   title: {
     text: '主标题',
     subtext: '副标题',
-    left: 'center', // 位置 left center right
+    left: 'left', // 位置 left center right
     textStyle: {
       color: 'red',
       fontSize: 24
@@ -32,11 +32,12 @@ const option = {
       dataView: {}, // 数据视图
     }
   },
+  backgroundColor: '#161627',
   // 雷达坐标系组件
   radar: {
     // shape: 'circle',
-    indicator: [
-      { name: '销售', max: 6500 },
+    indicator: [ // 雷达图的指示器的集合[]
+      { name: '销售', max: 6500 }, // name 指示器的名称 min max 最小值，最大值形成一个区间
       { name: '管理', max: 16000 },
       { name: '信息技术', max: 30000 },
       { name: '客服', max: 38000 },
