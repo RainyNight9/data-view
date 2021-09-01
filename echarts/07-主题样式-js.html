@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>echarts</title>
+  <style>
+    #main {
+      width: 700px;
+      height: 500px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 建立dom容器 -->
+  <div id="main"></div>
+  <!-- 引入echarts构建文件 -->
+  <!-- <script crossorigin="anonymous"
+    integrity="sha512-bXGnoMY1ck7BEj+ZWZGHCKzfhAPv+hR6vFeEuPhOgD7fbBm9L7gt5RX57rgv2lrDqBMpdVXQ4r0nNyh67OhFLA=="
+    src="https://lib.baomitu.com/echarts/5.1.2/echarts.common.min.js"></script> -->
+
+  <script crossorigin="anonymous"
+    integrity="sha512-ppWbHq6q2f7HAwS481w6qikuC0XEeBnmkRg6KWnWg3zSIbJwWWBgsCDMAxzSB7SVqXzWwSYQ2s8TSJKjnaikMg=="
+    src="https://lib.baomitu.com/echarts/5.1.2/echarts.min.js"></script>
+  <!-- 主题文件 -->
+  <script src="./js/walden.js"></script>
+
+  <script>
+    const dom = document.getElementById('main');
+    // const myChart = echarts.init(dom);
+    // const myChart = echarts.init(dom,'light');
+    // const myChart = echarts.init(dom,'dark');
+    // const myChart = echarts.init(dom,null);
+    const myChart = echarts.init(dom, 'walden');
+
+    const option = {
+      series: [
+        {
+          type: 'pie',
+          data: [
+            { value: 20, name: 'html' },
+            { value: 10, name: 'css' },
+            { value: 30, name: 'js' },
+            { value: 40, name: 'vue' },
+          ],
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+  </script>
+
+</body>
+
+</html>
