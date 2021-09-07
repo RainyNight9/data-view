@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>月亮</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    #canvas {
+      display: block;
+      border: 1px solid #ccc;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas">您的浏览器不支持</canvas>
+</body>
+<script>
+  const moon = {
+    x: 100,
+    y: 120
+  };
+
+  const canvas = document.getElementById("canvas");
+  canvas.width = screen.width;
+  canvas.height = screen.height;
+  const ctx = canvas.getContext("2d");
+
+  const time = 1000;
+
+  setInterval(function () {
+    if (moon.x <= canvas.width) {
+      moon.x += 25;
+      fillMoon(ctx, 2, moon.x, moon.y, 100, 35);
+    } else {
+      moon.x = 0;
+    }
+  }, time);
+
+  // 对月亮进行配置
+  function fillMoon(ctx, d, x, y, R, rot, fillColor) { // R半径，rot旋转角度
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //（startx,starty,endx,endy）;
+    const skyStyle = ctx.createRadialGradient((canvas.width / 2), canvas.height, 0, (canvas.width / 2), canvas.height - 100, 250);
+    skyStyle.addColorStop(0.0, "#176293"); // 第一个参数为0-1之间的浮点数。表示颜色的位置
+    skyStyle.addColorStop(1.0, "black");
+    ctx.fillStyle = skyStyle;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot * Math.PI / 180);
+    ctx.scale(50, 50); // context.scale(scalewidth,scaleheight);放大倍数
+    PathMoon(ctx, d);
+
+    ctx.fillStyle = fillColor || "#fb5";
+    ctx.fill();
+    ctx.restore();
+
+    // 绘制星空
+    const starNum = 5
+    for (let i = 0; i < starNum; i++) {
+      const r = Math.random() * 5 + 1; // 10-20
+      const rot = Math.random() * 360;
+      const x = Math.random() * canvas.width + 3;
+      const y = Math.random() * canvas.height * 0.65 + 5;
+      drawStar(ctx, x, y, r, rot);
+    }
+
+  }
+  // 绘制月亮
+  function PathMoon(ctx, d) {
+    ctx.beginPath();
+    ctx.arc(0, 0, 1, 0, 2 * Math.PI, true);
+    // ctx.arc(0, 0, 1, 0.5 * Math.PI, 1.5 * Math.PI, true);
+    // ctx.moveTo(0, -1);
+    // ctx.arcTo(d, 0, 0, 1, dis(0, -1, d, 0) / d);
+    ctx.closePath();
+  }
+
+  function dis(x1, y1, x2, y2) {
+    return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+  }
+
+  // 对星星状态进行设置
+  function drawStar(ctx, x, y, r, rot) {
+    ctx.save(); // 保存ctx状态
+    ctx.translate(x, y); // 移动
+    ctx.rotate(rot / 180 * Math.PI); // 旋转角度
+    starPath(ctx, r);
+
+    ctx.fillStyle = "#fb3";
+    ctx.strokeStyle = "#fd5"
+    ctx.lineWidth = 3;
+    ctx.lineJoin = "round";
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore(); // 回到之前ctx的状态
+  }
+  // 封装五角星函数
+  function starPath(ctx, r) {
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      ctx.lineTo(Math.cos((18 + i * 72) / 180 * Math.PI) * r, -Math.sin((18 + i * 72) / 180 * Math.PI) * r);
+      ctx.lineTo(Math.cos((54 + i * 72) / 180 * Math.PI) * (r / 2), -Math.sin((54 + i * 72) / 180 * Math.PI) * (r / 2));
+    }
+    ctx.closePath();
+  }
+</script>
+
+</html>

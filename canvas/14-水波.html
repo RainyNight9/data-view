@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>水波</title>
+  <style>
+    #canvas {
+      background-color: aliceblue;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /** @type {HTMLCanvasElement} */
+    // 画布
+    const canvas = document.getElementById("canvas");
+    // canvas.width = window.innerWidth;
+    // canvas.height = window.innerHeight;
+    canvas.width = 400;
+    canvas.height = 400;
+
+    // 画笔
+    const ctx = canvas.getContext('2d')
+
+    // x, y 是起始点
+    let x = 0, y = 210, w = 200, h = 50, dy = 210
+
+
+    // 水波
+    function wava() {
+      // 擦除
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.beginPath()
+      ctx.moveTo(x, y)
+      // bezierCurveTo(x1, y1, x2, y2, x, y) （从上一个点开始绘制一条曲线，到(x, y)为止，并且以(x1, y1)和(x2, y2)为控制点）
+      ctx.bezierCurveTo(x + w / 2, y - h, x + 1.5 * w, y + h, x + 2 * w, y)
+
+      const x1 = x + 2 * w
+      // 平移一个三次贝塞尔曲线
+      ctx.bezierCurveTo(x1 + w / 2, y - h, x1 + 1.5 * w, y + h, x1 + 2 * w, y)
+      ctx.stroke()
+
+      // 水区域
+      ctx.lineTo(x1 + 2 * w, y + dy)
+      ctx.lineTo(x, y + dy)
+      ctx.closePath()
+
+      // 渐变色 context.createLinearGradient(x0,y0,x1,y1)
+      const cl = ctx.createLinearGradient(0, canvas.height, w + x, 0)
+      cl.addColorStop(0, '#6cf')
+      cl.addColorStop(1, '#36c')
+      ctx.fillStyle = cl
+      ctx.fill()
+
+      // 动画
+      x -= 6;
+      if (x <= -2 * w) x = 0
+
+      requestAnimationFrame(wava)
+    }
+    wava()
+  </script>
+</body>
+
+</html>
