@@ -158,7 +158,6 @@
     sector.x = canvas.width / 2 - 150;
     sector.y = canvas.height / 2 - 150;
     sector.updatePoints();
-    sector.draw(ctx);
 
     // 提示
     class Tip {
@@ -191,6 +190,7 @@
         ctx.fillStyle = '#fff'
         ctx.textBaseline = 'top'
         ctx.fillText(text, x + paddingW, y + paddingH)
+        ctx.restore();
       }
       // 更新提示位置 基于鼠标位置的变动
       updatePos() {
@@ -214,8 +214,6 @@
     const tip = new Tip()
     tip.x = canvas.width / 2 - 100
     tip.y = canvas.height / 2 - 100;
-    tip.visible = true
-    tip.draw(ctx)
 
     // 监听鼠标移动事件
     canvas.addEventListener('mousemove', (event) => {
@@ -235,7 +233,6 @@
         tip.visible = false
         sector.state = 2
       }
-      render()
     });
 
     // 计时器 time

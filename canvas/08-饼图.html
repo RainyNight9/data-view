@@ -70,16 +70,18 @@
       // 更新引导线点位
       updatePoints() {
         const { r, startAngle, endAngle, x, y, p1, p2, p3, p4 } = this;
-        // 弧度
+        // 弧度 方向
         const dir = startAngle + (endAngle - startAngle) / 2
         // 距离
         const l1 = r + p1.d;
+        // 求p1点位
         // Math.cos(dir)=p1.x/l1  余弦函数 角A的余弦是 邻边/斜边
         p1.x = Math.cos(dir) * l1 + x;
         // Math.sin(dir)=p1.y/l1  正弦函数 角A的正弦是 对边/斜边
         p1.y = Math.sin(dir) * l1 + y;
 
         const l2 = r + p2.d;
+        // 求p2点位
         p2.x = Math.cos(dir) * l2 + x;
         p2.y = Math.sin(dir) * l2 + y;
 
@@ -93,15 +95,17 @@
           n = -1
         }
 
+        // 求p3点位
         p3.x = p2.x + p3.d * n
         p3.y = p2.y
 
+        // 求p4点位
         p4.x = p3.x + p4.d * n
         p4.y = p3.y
       }
     }
 
-    // 扇形
+    // 实例化扇形
     const sector = new Sector();
     // sector.endAngle=Math.PI*3/2;
     sector.x = canvas.width / 2 - 150;
@@ -125,25 +129,25 @@
         if (!visible) return
         ctx.font = `${fontSize}px arail`
         // 底色
+        // 获取文字宽度
         const { width } = ctx.measureText(text);
+        // 绘制填充矩形
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(x, y, width + paddingW * 2, fontSize + paddingH * 2);
         // 文字
         ctx.fillStyle = '#fff'
         ctx.textBaseline = 'top'
         ctx.fillText(text, x + paddingW, y + paddingH)
+        ctx.restore();
       }
     }
 
     // 实例化提示框
     const tip = new Tip()
-    tip.x = canvas.width / 2 - 100
-    tip.y = canvas.height / 2 - 100;
-    tip.visible = true
-    tip.draw(ctx)
 
     // 监听鼠标移动事件
     canvas.addEventListener('mousemove', (event) => {
+      // 鼠标位置
       const mousePos = getPos(event)
       // console.log(mousePos)
       // 判断点是不是在图形中
@@ -155,11 +159,14 @@
       } else {
         tip.visible = false
       }
+      // 按需渲染
       render()
     });
 
+    // 渲染
     render()
 
+    // 渲染方法
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       sector.draw(ctx)
@@ -168,6 +175,7 @@
 
     // 监听鼠标按键事件
     canvas.addEventListener('mousedown', (event) => {
+      // 鼠标位置
       const mousePos = getPos(event)
       // console.log(mousePos)
       // 判断点是不是在图形中
@@ -181,6 +189,7 @@
 
     // 判断点是不是在图形中
     function containPoint(obj, mousePos) {
+      // 鼠标位减图形位
       const vector = {
         x: mousePos.x - obj.x,
         y: mousePos.y - obj.y,

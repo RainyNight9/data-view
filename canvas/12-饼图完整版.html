@@ -266,6 +266,7 @@
         ctx.fillStyle = '#fff'
         ctx.textBaseline = 'top'
         ctx.fillText(text, x + paddingW, y + paddingH)
+        ctx.restore();
       }
       // 更新提示位置 基于鼠标位置的变动
       updatePos() {
