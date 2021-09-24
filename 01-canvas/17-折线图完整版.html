@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>折线图</title>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    // 设置画布的宽高
+    canvas.width = 500;
+    canvas.height = 300;
+    // 绘制的对象获取
+    const ctx = canvas.getContext("2d");
+
+    // 常量
+    const marginBootom = 50;
+    const marginLeft = 40;
+
+    // 渐变
+    ctx.strokeStyle = "rgb(0,0,0,1)"
+    ctx.lineWidth = 0.1
+
+    // 1、变换坐标系--为操作带来方便
+    // 沿x轴镜像对称变换画布
+    ctx.scale(1, -1)
+
+    // 向下平移画布-marginBootom的高度
+    ctx.translate(marginLeft, -canvas.height + marginBootom)
+
+
+
+    // 保存好当前画布的状态。
+    // 因为我们的圆心在左下角，我们还需要返回到这个远点进行其他操作。
+    ctx.save()
+    const heightOfOne = 30
+
+    // 2、绘制平行X轴的线条
+    const xText = new Array("Mon", "Tue", "Wed", "Thu", "Fir", "Sat", "Sun");
+    // 绘制X轴开始
+    for (let i = 0; i < xText.length; i++) {
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      ctx.lineTo(canvas.width, 0)
+      ctx.closePath()
+      ctx.stroke()
+      // 每次绘制完之后继续往上平移
+      ctx.translate(0, heightOfOne)
+    }
+    ctx.restore()
+
+    // 3、绘制文字
+    // 绘制刻度开始
+    const widthOfOn = (canvas.width - marginLeft) / xText.length
+
+    ctx.save()
+    ctx.lineWidth = 0.2
+    for (let i = 0; i <= xText.length; i++) {
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      ctx.lineTo(0, -5)
+      ctx.closePath()
+      ctx.stroke()
+      // 每次绘制完之后继续往上平移
+      ctx.translate(widthOfOn, 0)
+    }
+    ctx.restore()
+
+    // x轴绘制文字数组
+    ctx.save()
+    // 这里沿着X轴镜像对称变换。那么Y轴向下为正，X没变向右为正。
+    ctx.scale(1, -1)
+    ctx.font = "7pt Calibri";
+    for (let i = 0; i < xText.length; i++) {
+      ctx.stroke()
+      // 每次绘制完之后继续往上平移
+      if (i === 0) {
+        // 分析之后第一次移动了单位长度的一半
+        // 后面的每次都平移一个刻度长度,坐标圆心就平移到了每个刻度的中间。
+        // y轴向下平移了5个像素。这样就和X轴不会重合。
+        ctx.translate(widthOfOn / 2, 15)
+      } else {
+        ctx.translate(widthOfOn, 0)
+      }
+      // 文字的宽度
+      const textWidth = ctx.measureText(xText[i]);
+      ctx.fillText(xText[i], -textWidth.width / 2, 0);
+    }
+    // 还原到远点为左下角状态。
+    ctx.restore()
+
+    // 保存左下角为坐标圆点状态。
+    ctx.save()
+    ctx.scale(1, -1)
+    ctx.translate(-20, 0)
+    ctx.font = "7pt Calibri";
+    // Y轴左边绘制文字
+    for (let i = 0; i < xText.length; i++) {
+      ctx.stroke()
+      // 每次绘制完之后继续往上平移
+      ctx.fillText((50 * i).toString(), 0, 0);
+      ctx.translate(0, -heightOfOne)
+    }
+    ctx.restore()
+
+    // 4、绘制折线和圆
+    const Point = {
+      createNew: function (x, y) {
+        const point = {};
+        point.x = x;
+        point.y = y;
+        return point;
+      }
+    };
+    // 绘制折线
+    drawLine(ctx)
+    // 绘制圆圈
+    drawCircle(ctx)
+
+    // // 绘制贝塞尔曲线
+    // drawQuaraticLine(ctx)
+
+    // // 绘制填充区域
+    // drawFillLine(ctx)
+
+    // // 绘制多个填充折线和圆
+    // drawMoreLine(ctx)
+
+    // 绘制折线
+    function drawLine(ctx) {
+      // 绘制折线段
+      const widthOfOn = (canvas.width - marginLeft) / 7
+      // 每个数字占用的实际像素高度
+      const danweiHeight = 35 / 50;
+      const point01 = Point.createNew(widthOfOn / 2, 150 * danweiHeight);
+      const point02 = Point.createNew(widthOfOn / 2 + widthOfOn, 250 * danweiHeight);
+      const point03 = Point.createNew(widthOfOn / 2 + widthOfOn * 2, 225 * danweiHeight);
+      const point04 = Point.createNew(widthOfOn / 2 + widthOfOn * 3, 211 * danweiHeight);
+      const point05 = Point.createNew(widthOfOn / 2 + widthOfOn * 4, 140 * danweiHeight);
+      const point06 = Point.createNew(widthOfOn / 2 + widthOfOn * 5, 148 * danweiHeight);
+      const point07 = Point.createNew(widthOfOn / 2 + widthOfOn * 6, 260 * danweiHeight);
+
+      const points = [point01, point02, point03, point04, point05, point06, point07];
+      ctx.save();
+
+      ctx.beginPath();
+      for (let index = 0; index < points.length; index++) {
+        ctx.lineTo(points[index].x, points[index].y);
+      }
+      ctx.strokeStyle = "rgb(93,111,194)"
+      ctx.lineWidth = 1
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+      ctx.restore();
+    }
+
+    // 绘制圆圈
+    function drawCircle(ctx) {
+      const widthOfOn = (canvas.width - marginLeft) / 7
+      // 每个数字占用的实际像素高度
+      const danweiHeight = 35 / 50;
+      const point01 = Point.createNew(widthOfOn / 2, 150 * danweiHeight);
+      const point02 = Point.createNew(widthOfOn / 2 + widthOfOn, 250 * danweiHeight);
+      const point03 = Point.createNew(widthOfOn / 2 + widthOfOn * 2, 225 * danweiHeight);
+      const point04 = Point.createNew(widthOfOn / 2 + widthOfOn * 3, 211 * danweiHeight);
+      const point05 = Point.createNew(widthOfOn / 2 + widthOfOn * 4, 140 * danweiHeight);
+      const point06 = Point.createNew(widthOfOn / 2 + widthOfOn * 5, 148 * danweiHeight);
+      const point07 = Point.createNew(widthOfOn / 2 + widthOfOn * 6, 260 * danweiHeight);
+
+
+      const points = [point01, point02, point03, point04, point05, point06, point07];
+      ctx.save();
+      ctx.beginPath();
+      for (let index = 0; index < points.length; index++) {
+        ctx.beginPath();
+        ctx.arc(points[index].x, points[index].y, 3, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = 'rgb(100,255,255)';
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = 'rgb(100,255,255)';
+        ctx.fill()
+      }
+      ctx.restore();
+    }
+
+    // 绘制贝塞尔曲线
+    function drawQuaraticLine(ctx) {
+      // 绘制折线段
+      const widthOfOn = (canvas.width - marginLeft) / 7
+      // 每个数字占用的实际像素高度
+      const danweiHeight = 35 / 50;
+      const point01 = Point.createNew(widthOfOn / 2, 150 * danweiHeight);
+      const point02 = Point.createNew(widthOfOn / 2 + widthOfOn, 250 * danweiHeight);
+      const point03 = Point.createNew(widthOfOn / 2 + widthOfOn * 2, 225 * danweiHeight);
+      const point04 = Point.createNew(widthOfOn / 2 + widthOfOn * 3, 211 * danweiHeight);
+      const point05 = Point.createNew(widthOfOn / 2 + widthOfOn * 4, 140 * danweiHeight);
+      const point06 = Point.createNew(widthOfOn / 2 + widthOfOn * 5, 148 * danweiHeight);
+      const point07 = Point.createNew(widthOfOn / 2 + widthOfOn * 6, 260 * danweiHeight);
+
+
+      const dataList = [point01, point02, point03, point04, point05, point06, point07];
+      ctx.save();
+      ctx.beginPath();
+      ctx.lineTo(point01.x, point01.y)
+      // 500=grid_width-40 每个单位的长度的=像素长度
+      const danweiX = widthOfOn;
+      const grid_width = widthOfOn;
+      const xMoveDistance = 20
+      const yMoveDistance = 30
+      for (let index = 0; index < dataList.length - 1; index++) {
+        if (dataList[index] === dataList[index + 1]) {
+          ctx.lineTo(danweiX * (index + 1), 0)
+        } else if (dataList[index] < dataList[index + 1]) { // y1<y2情况
+          const centerX = (grid_width * index + grid_width * (1 + index)) / 2
+          const centerY = (dataList[index].y + dataList[index + 1].y) / 2
+          const controX0 = (grid_width * index + centerX) / 2
+          const controY0 = (dataList[index].y + centerY) / 2
+          const controX1 = (centerX + grid_width * (1 + index)) / 2
+          const controY1 = (centerY + dataList[index + 1].y) / 2
+          ctx.bezierCurveTo(controX0 + xMoveDistance, controY0 - yMoveDistance, controX1 - xMoveDistance, controY1 + yMoveDistance, grid_width * (1 + index), dataList[index + 1].y)
+        } else {
+          const centerX = (grid_width * index + grid_width * (1 + index)) / 2
+          const centerY = (dataList[index].y + dataList[index + 1].y) / 2
+          const controX0 = (grid_width * index + centerX) / 2
+          const controY0 = (dataList[index].y + centerY) / 2
+          const controX1 = (centerX + grid_width * (1 + index)) / 2
+          const controY1 = (centerY + dataList[index + 1].y) / 2
+          ctx.bezierCurveTo(controX0 + xMoveDistance, controY0 + yMoveDistance, controX1 - xMoveDistance, controY1 - yMoveDistance, grid_width * (1 + index), dataList[index + 1].y)
+        }
+      }
+      ctx.strokeStyle = "rgb(93,111,194)"
+      ctx.lineWidth = 2
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+      ctx.restore();
+    }
+
+    // 绘制填充区域
+    function drawFillLine(ctx) {
+      // 绘制折线段
+      const widthOfOn = (canvas.width - marginLeft) / 7
+      // 每个数字占用的实际像素高度
+      const danweiHeight = 35 / 50;
+      const point00 = Point.createNew(0, 150 * danweiHeight);
+      const point01 = Point.createNew(widthOfOn / 2, 150 * danweiHeight);
+      const point02 = Point.createNew(widthOfOn / 2 + widthOfOn, 250 * danweiHeight);
+      const point03 = Point.createNew(widthOfOn / 2 + widthOfOn * 2, 225 * danweiHeight);
+      const point04 = Point.createNew(widthOfOn / 2 + widthOfOn * 3, 211 * danweiHeight);
+      const point05 = Point.createNew(widthOfOn / 2 + widthOfOn * 4, 140 * danweiHeight);
+      const point06 = Point.createNew(widthOfOn / 2 + widthOfOn * 5, 148 * danweiHeight);
+      const point07 = Point.createNew(widthOfOn / 2 + widthOfOn * 6, 260 * danweiHeight);
+
+      const points = [point00, point01, point02, point03, point04, point05, point06, point07];
+      ctx.save();
+      ctx.beginPath();
+      for (let index = 0; index < points.length; index++) {
+        ctx.lineTo(points[index].x, points[index].y);
+      }
+      ctx.strokeStyle = "rgb(93,111,194)"
+      ctx.lineWidth = 1
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.beginPath();
+      // 绘制闭环多边形
+      ctx.moveTo(0, 0)
+      for (let index = 0; index < points.length; index++) {
+        ctx.lineTo(points[index].x, points[index].y);
+      }
+      ctx.lineTo(points[points.length - 1].x, 0);
+      ctx.lineTo(0, 0);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(93,111,194,0.5)"
+      ctx.lineWidth = 3
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 绘制多个填充折线和圆
+    function drawMoreLine(ctx) {
+      // 绘制折线段
+      const widthOfOn = (canvas.width - marginLeft) / 7
+      // 每个数字占用的实际像素高度
+      const danweiHeight = 35 / 50;
+      const point01 = Point.createNew(widthOfOn / 2, 200 * danweiHeight);
+      const point02 = Point.createNew(widthOfOn / 2 + widthOfOn, 250 * danweiHeight);
+      const point03 = Point.createNew(widthOfOn / 2 + widthOfOn * 2, 225 * danweiHeight);
+      const point04 = Point.createNew(widthOfOn / 2 + widthOfOn * 3, 211 * danweiHeight);
+      const point05 = Point.createNew(widthOfOn / 2 + widthOfOn * 4, 140 * danweiHeight);
+      const point06 = Point.createNew(widthOfOn / 2 + widthOfOn * 5, 148 * danweiHeight);
+      const point07 = Point.createNew(widthOfOn / 2 + widthOfOn * 6, 260 * danweiHeight);
+
+      const point011 = Point.createNew(widthOfOn / 2, 150 * danweiHeight);
+      const point012 = Point.createNew(widthOfOn / 2 + widthOfOn, 200 * danweiHeight);
+      const point013 = Point.createNew(widthOfOn / 2 + widthOfOn * 2, 125 * danweiHeight);
+      const point014 = Point.createNew(widthOfOn / 2 + widthOfOn * 3, 181 * danweiHeight);
+      const point015 = Point.createNew(widthOfOn / 2 + widthOfOn * 4, 90 * danweiHeight);
+      const point016 = Point.createNew(widthOfOn / 2 + widthOfOn * 5, 98 * danweiHeight);
+      const point017 = Point.createNew(widthOfOn / 2 + widthOfOn * 6, 210 * danweiHeight);
+
+      const point021 = Point.createNew(widthOfOn / 2, 60 * danweiHeight);
+      const point022 = Point.createNew(widthOfOn / 2 + widthOfOn, 65 * danweiHeight);
+      const point023 = Point.createNew(widthOfOn / 2 + widthOfOn * 2, 61 * danweiHeight);
+      const point024 = Point.createNew(widthOfOn / 2 + widthOfOn * 3, 70 * danweiHeight);
+      const point025 = Point.createNew(widthOfOn / 2 + widthOfOn * 4, 78 * danweiHeight);
+      const point026 = Point.createNew(widthOfOn / 2 + widthOfOn * 5, 68 * danweiHeight);
+      const point027 = Point.createNew(widthOfOn / 2 + widthOfOn * 6, 72 * danweiHeight);
+
+      const points = [point01, point02, point03, point04, point05, point06, point07];
+      const point1s = [point011, point012, point013, point014, point015, point016, point017];
+      const point2s = [point021, point022, point023, point024, point025, point026, point027];
+
+      ctx.save();
+      ctx.beginPath();
+      for (let index = 0; index < points.length; index++) {
+        ctx.lineTo(points[index].x, points[index].y);
+      }
+      ctx.strokeStyle = "rgb(93,111,194)"
+      ctx.lineWidth = 1
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.beginPath();
+      for (let index = 0; index < point1s.length; index++) {
+        ctx.lineTo(point1s[index].x, point1s[index].y);
+      }
+      ctx.strokeStyle = "rgb(193,111,194)"
+      ctx.lineWidth = 1
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.beginPath();
+      for (let index = 0; index < point2s.length; index++) {
+        ctx.lineTo(point2s[index].x, point2s[index].y);
+      }
+      ctx.strokeStyle = "rgb(293,111,294)"
+      ctx.lineWidth = 1
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.beginPath();
+      for (let index = 0; index < point2s.length; index++) {
+        ctx.lineTo(point2s[index].x, point2s[index].y - 15);
+      }
+      ctx.strokeStyle = "rgb(293,211,194)"
+      ctx.lineWidth = 1
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.beginPath();
+      for (let index = 0; index < point2s.length; index++) {
+        ctx.lineTo(point2s[index].x, point2s[index].y - 35);
+      }
+      ctx.strokeStyle = "rgb(93,211,294)"
+      ctx.lineWidth = 1
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.closePath();
+      for (let index = 0; index < points.length; index++) {
+        ctx.beginPath();
+        ctx.arc(points[index].x, points[index].y, 3, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = 'rgb(100,255,255)';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgb(100,255,255)';
+        ctx.fill()
+      }
+
+      // 第一个上面的圆
+      for (let index = 0; index < points.length; index++) {
+        ctx.beginPath();
+        ctx.arc(points[index].x, points[index].y, 3, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = "rgb(93,111,194)";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "rgb(93,111,194)";
+        ctx.fill()
+      }
+      // 第二条线上面的圆
+      for (let index = 0; index < point1s.length; index++) {
+        ctx.beginPath();
+        ctx.arc(point1s[index].x, point1s[index].y, 3, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = "rgb(193,111,194)"
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "rgb(193,111,194)"
+        ctx.fill()
+      }
+      // 第三条线的圆
+      for (let index = 0; index < point2s.length; index++) {
+        ctx.beginPath();
+        ctx.arc(point2s[index].x, point2s[index].y, 3, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = "rgb(293,111,294)"
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "rgb(293,111,294)"
+        ctx.fill()
+      }
+      // 四...圆
+      for (let index = 0; index < point2s.length; index++) {
+        ctx.beginPath();
+        ctx.arc(point2s[index].x, point2s[index].y - 15, 3, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = "rgb(293,211,194)"
+        ctx.shadowBlur = 1;
+        ctx.shadowColor = "rgb(293,211,194)"
+        ctx.fill()
+      }
+      // 第五条线上面的圆圈
+      for (let index = 0; index < point2s.length; index++) {
+        ctx.beginPath();
+        ctx.arc(point2s[index].x, point2s[index].y - 35, 3, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = "rgb(93,211,294)"
+        ctx.shadowBlur = 1;
+        ctx.shadowColor = "rgb(93,211,294)"
+        ctx.fill()
+      }
+      ctx.restore();
+    }
+
+    // 绘制多个填充区域
+    function drawMoreFillLine(ctx, points) {
+      // 第一条线闭合区域
+      ctx.beginPath();
+      ctx.moveTo(0, 0)
+      for (let index = 0; index < points.length; index++) {
+        ctx.lineTo(points[index].x, points[index].y);
+
+        // 这里由于文字反转所以需要变换坐标系。
+        // 且为了方便操作每次都将坐标圆点移动到顶点跟家方便的操作
+        ctx.save()
+        ctx.translate(points[index].x, points[index].y)
+        ctx.scale(1, -1)
+        ctx.fillText(points[index].y + "", 0, -10)
+        // 记得文字绘制完成还原坐标系，因为后面还要绘制线，不影响坐标系圆点是左下叫为圆形即可
+        ctx.restore()
+      }
+      ctx.lineTo(points[points.length - 1].x, 0);
+      ctx.closePath();
+
+      ctx.fillStyle = "rgba(93,111,194,0.5)"
+      ctx.lineWidth = 11
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.closePath();
+    }
+  </script>
+</body>
+
+</html>
