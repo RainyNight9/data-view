@@ -10,9 +10,6 @@ const data = [
 
 const chartWidth = 500; // 条形图的宽度
 const chartHeight = 400; // 条形图的高度
-const margin = 16; // 条形图的外边距
-const containerWidth = chartWidth + margin * 2; // 容器的宽度
-const containerHeight = chartHeight + margin * 2; // 容器的高度
 
 const types = Array.from(data, (d) => d.type); // 数据全部 type 新数组
 const values = Array.from(data, (d) => d.value); // 数据全部 value 新数组
@@ -32,3 +29,21 @@ const y = chartHeight;
 // 条的高度应该和 value 线性相关的
 const valMax = Math.max(...values);
 const barHeights = Array.from(values, (v) => chartHeight * (v / valMax)); // 按照最高的那个柱子为标准，计算其他每个柱子的比例高度
+
+// 获取 canvas 的容器并设置宽高
+const margin = 16; // 条形图的外边距
+const containerWidth = chartWidth + margin * 2; // 容器的宽度
+const containerHeight = chartHeight + margin * 2; // 容器的高度
+const canvas = document.getElementById("container");
+canvas.style.width = containerWidth + "px";
+canvas.style.height = containerHeight + "px";
+
+// 下面把画布宽高设置为样式宽高的两倍主要是为了解决模糊问题
+// 这个地方就不详细展开了，感兴趣的可以自行查阅
+canvas.width = containerWidth * 2;
+canvas.height = containerHeight * 2;
+
+const context = canvas.getContext("2d");
+context.scale(2, 2); // 抵消将画布宽高设置为样式宽高两倍的影响
+
+context.translate(margin, margin); // 将坐标原点移动到绘制图表的区域
